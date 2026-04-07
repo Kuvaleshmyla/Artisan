@@ -1,6 +1,15 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <script>
+      try {
+        var raw = localStorage.getItem('theme-storage');
+        if (raw) {
+          var j = JSON.parse(raw);
+          if (j && j.state && j.state.dark) document.documentElement.classList.add('dark');
+        }
+      } catch (e) {}
+    </script>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

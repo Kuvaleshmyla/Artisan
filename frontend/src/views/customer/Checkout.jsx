@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import useAuthStore from '../../store/useAuthStore';
 import useCartStore from '../../store/useCartStore';
 import { MapPin, QrCode, CheckCircle2, Plus, Minus, Trash2, Smartphone, Building, User, Phone, Check, Loader2 } from 'lucide-react';
@@ -89,7 +89,8 @@ const Checkout = () => {
 
     const handleQRPayment = async () => {
         if (!qrUploadedUrl) {
-            if (!window.confirm("Continue pending manual verification without a screenshot receipt?")) return;
+            alert('Please upload your payment screenshot before completing the order.');
+            return;
         }
         setGlobalLoading(true);
 
@@ -120,6 +121,10 @@ const Checkout = () => {
         }
     };
 
+    if (userInfo?.role === 'admin') {
+        return <Navigate to="/dashboard" replace />;
+    }
+
     if (cartItems.length === 0 && step !== 4) {
         return (
             <div className="max-w-4xl mx-auto py-20 px-4 text-center">
@@ -128,7 +133,7 @@ const Checkout = () => {
                 </div>
                 <h2 className="text-2xl font-bold text-gray-800 mb-2">Your Cart is Empty</h2>
                 <p className="text-gray-500 mb-8 max-w-sm mx-auto">Looks like you haven't added any artisan products to checkout yet.</p>
-                <button onClick={() => navigate('/dashboard/catalog')} className="bg-brand-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-brand-700 transition">Return to Catalog</button>
+                <button onClick={() => navigate('/dashboard/products')} className="bg-brand-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-brand-700 transition">Return to catalog</button>
             </div>
         );
     }
@@ -317,13 +322,13 @@ const Checkout = () => {
                                             </>
                                         )}
                                     </div>
-                                    <input type="file" className="hidden" accept="image/*" onChange={handleReceiptUpload} />
+                                    <input type="file" className="hidden" accept="image/*" capture="environment" onChange={handleReceiptUpload} />
                                 </label>
                             </div>
 
                             <div className="flex w-full max-w-lg gap-4">
                                 <button onClick={handleBack} className="w-1/3 text-gray-500 font-bold hover:bg-gray-100 py-4 rounded-xl transition-all">Cancel Vector</button>
-                                <button onClick={handleQRPayment} disabled={!qrUploadedUrl && uploadingReceipt} className="w-2/3 bg-purple-600 text-white py-4 rounded-xl font-black text-lg hover:bg-purple-700 transition shadow-lg shadow-purple-200 disabled:opacity-50 flex items-center justify-center">
+                                <button onClick={handleQRPayment} disabled={!qrUploadedUrl || uploadingReceipt} className="w-2/3 bg-purple-600 text-white py-4 rounded-xl font-black text-lg hover:bg-purple-700 transition shadow-lg shadow-purple-200 disabled:opacity-50 flex items-center justify-center">
                                     I have completed payment
                                 </button>
                             </div>
@@ -340,8 +345,8 @@ const Checkout = () => {
                         <p className="text-lg text-gray-600 font-medium mb-10 max-w-lg mx-auto">Your manual payment token is pending verification by the master Artisan. Tracking has been mapped to <span className="text-gray-900 font-bold">{completedOrder.shippingAddress?.email}</span>.</p>
                         
                         <div className="flex flex-col sm:flex-row justify-center gap-4">
-                            <button onClick={() => navigate('/dashboard/orders')} className="bg-brand-600 text-white px-10 py-4 rounded-xl font-black text-lg hover:bg-brand-700 transition">Track Verification</button>
-                            <button onClick={() => navigate('/dashboard/catalog')} className="bg-white text-gray-700 border-2 border-gray-200 px-10 py-4 rounded-xl font-bold text-lg hover:border-gray-300">Return to Catalog</button>
+                            <button onClick={() => navigate('/dashboard/orders')} className="bg-brand-600 text-white px-10 py-4 rounded-xl font-black text-lg hover:bg-brand-700 transition">Track order</button>
+                            <button onClick={() => navigate('/dashboard/products')} className="bg-white text-gray-700 border-2 border-gray-200 px-10 py-4 rounded-xl font-bold text-lg hover:border-gray-300">Back to products</button>
                         </div>
                     </div>
                 )}

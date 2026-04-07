@@ -27,7 +27,7 @@ const Wishlist = () => {
                         <Heart size={48} className="mx-auto mb-4 text-gray-300" />
                         <h2 className="text-xl font-bold text-gray-800 mb-2">No items saved</h2>
                         <p className="mb-6">Explore the artisan catalogue and click the heart icon to save products here.</p>
-                        <button onClick={() => navigate('/dashboard/catalog')} className="bg-gray-900 text-white font-bold py-3 px-6 rounded-xl hover:bg-black transition">Browse Catalog</button>
+                        <button type="button" onClick={() => navigate('/dashboard/products')} className="bg-gray-900 text-white font-bold py-3 px-6 rounded-xl hover:bg-black transition">Browse products</button>
                     </div>
                 ) : wishlistItems.map(product => (
                     <div 

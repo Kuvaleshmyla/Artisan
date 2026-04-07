@@ -19,7 +19,11 @@ const orderSchema = new mongoose.Schema({
         zip: String,
         country: String
     },
-    status: { type: String, enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'], default: 'pending' },
+    status: {
+        type: String,
+        enum: ['pending', 'accepted', 'processing', 'shipped', 'delivered', 'cancelled'],
+        default: 'pending'
+    },
     paymentMethod: { type: String, enum: ['qr_upload', 'upi'], required: true },
     paymentStatus: { type: String, enum: ['pending', 'paid', 'failed', 'refunded'], default: 'pending' },
     paymentScreenshot: { type: String }, // Proof of manual payment

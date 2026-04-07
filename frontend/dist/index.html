@@ -1,12 +1,21 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <script>
+      try {
+        var raw = localStorage.getItem('theme-storage');
+        if (raw) {
+          var j = JSON.parse(raw);
+          if (j && j.state && j.state.dark) document.documentElement.classList.add('dark');
+        }
+      } catch (e) {}
+    </script>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Artisan Marketplace</title>
-    <script type="module" crossorigin src="/assets/index-CPRs0gPB.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-DdA97SKC.css">
+    <script type="module" crossorigin src="/assets/index-CBD6RUuL.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-Dx7ftFYX.css">
   </head>
   <body>
     <div id="root"></div>

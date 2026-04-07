@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Star, Heart, MapPin, Truck, ShieldCheck, ChevronRight, User, Loader2, MessageSquare } from 'lucide-react';
+import { ShoppingCart, Star, Heart, MapPin, Truck, ShieldCheck, ChevronRight, User, Loader2, MessageSquare, CheckCircle2, Zap } from 'lucide-react';
 import useCartStore from '../../store/useCartStore';
 import useWishlistStore from '../../store/useWishlistStore';
 import useAuthStore from '../../store/useAuthStore';
-import axios from 'axios';
 
 const ProductDetails = () => {
     const { id } = useParams();
@@ -16,6 +16,7 @@ const ProductDetails = () => {
     const [comment, setComment] = useState('');
     const [submittingReview, setSubmittingReview] = useState(false);
     const [selectedQuantity, setSelectedQuantity] = useState(1);
+    const [imageIndex, setImageIndex] = useState(0);
     
     const { cartItems, addToCart } = useCartStore();
     const { wishlistItems, toggleWishlist } = useWishlistStore();
@@ -36,6 +37,10 @@ const ProductDetails = () => {
     useEffect(() => {
         fetchProduct();
     }, [id]);
+
+    useEffect(() => {
+        setImageIndex(0);
+    }, [id, product?._id]);
 
     const submitReview = async (e) => {
         e.preventDefault();
@@ -62,20 +67,36 @@ const ProductDetails = () => {
 
     const isInCart = cartItems.some(item => item._id === product._id);
     const isInWishlist = wishlistItems.some(item => item._id === product._id);
+    const isAdmin = userInfo?.role === 'admin';
+    const artisanUserId = product.artisanId?._id || product.artisanId;
+
+    const imgs = product?.images?.filter(Boolean) || [];
+    const mainSrc =
+        imgs[imageIndex] ||
+        (imgs.length ? imgs[0] : 'https://via.placeholder.com/600');
+
+    const buyNow = () => {
+        if (isAdmin) {
+            alert('Administrator accounts cannot place orders.');
+            return;
+        }
+        addToCart({ ...product, quantity: selectedQuantity });
+        navigate('/dashboard/checkout');
+    };
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-in fade-in duration-500 pb-24">
             {/* Breadcrumbs */}
-            <nav className="flex items-center gap-2 text-sm font-medium text-gray-500 mb-8">
+            <nav className="flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 mb-8">
                 <button onClick={() => navigate('/dashboard/products')} className="hover:text-brand-600 transition-colors">Catalog</button>
                 <ChevronRight size={16} />
-                <span className="text-gray-900">{product.name}</span>
+                <span className="text-gray-900 dark:text-gray-100">{product.name}</span>
             </nav>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
                 {/* Visual Artifact Column */}
                 <div className="space-y-6">
-                    <div className="aspect-square bg-gray-50 rounded-[2rem] overflow-hidden border border-gray-100 shadow-sm relative group">
+                    <div className="aspect-square bg-gray-50 dark:bg-gray-900 rounded-[2rem] overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm relative group">
                         {/* Wishlist Heart Toggle */}
                         <button 
                             onClick={() => toggleWishlist(product)}
@@ -84,7 +105,7 @@ const ProductDetails = () => {
                             <Heart size={24} className={isInWishlist ? "fill-red-500 text-red-500" : "text-gray-400"} />
                         </button>
                         <img 
-                            src={product.images && product.images.length > 0 ? product.images[0] : 'https://via.placeholder.com/600'} 
+                            src={mainSrc} 
                             alt={product.name} 
                             className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ${isInCart ? 'opacity-80' : ''}`} 
                         />
@@ -96,6 +117,22 @@ const ProductDetails = () => {
                             </div>
                         )}
                     </div>
+                    {imgs.length > 1 ? (
+                        <div className="flex flex-wrap gap-2">
+                            {imgs.map((src, i) => (
+                                <button
+                                    key={src + i}
+                                    type="button"
+                                    onClick={() => setImageIndex(i)}
+                                    className={`w-16 h-16 rounded-xl overflow-hidden border-2 shrink-0 ${
+                                        i === imageIndex ? 'border-brand-600 ring-2 ring-brand-200' : 'border-gray-200 dark:border-gray-700 opacity-80 hover:opacity-100'
+                                    }`}
+                                >
+                                    <img src={src} alt="" className="w-full h-full object-cover" />
+                                </button>
+                            ))}
+                        </div>
+                    ) : null}
                 </div>
 
                 {/* Product Metadata & Execution Column */}
@@ -117,9 +154,18 @@ const ProductDetails = () => {
                         <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center text-brand-600 shadow-sm border border-brand-100">
                             <User size={24} />
                         </div>
-                        <div>
+                        <div className="flex-1">
                             <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-1">Authentic Maker</p>
                             <p className="text-lg font-bold text-gray-900">{product.artisanId?.businessName || product.artisanId?.name || 'Artisan Workshop'}</p>
+                            {artisanUserId && (
+                                <button
+                                    type="button"
+                                    onClick={() => navigate(`/dashboard/artisan/${artisanUserId}`)}
+                                    className="mt-2 text-sm font-bold text-brand-600 hover:underline"
+                                >
+                                    View artisan profile & products
+                                </button>
+                            )}
                         </div>
                     </div>
 
@@ -136,29 +182,51 @@ const ProductDetails = () => {
                     </div>
 
                     {!isInCart ? (
-                        <div className="flex items-center gap-4">
-                            <div className="flex items-center bg-gray-50 border border-gray-200 rounded-2xl p-2 w-1/3 justify-between">
-                                <button onClick={() => setSelectedQuantity(Math.max(1, selectedQuantity - 1))} className="w-10 h-10 flex items-center justify-center text-gray-500 bg-white rounded-xl shadow-sm hover:text-brand-600 transition-colors">-</button>
+                        <div className="flex flex-col sm:flex-row gap-4">
+                            <div className="flex items-center bg-gray-50 border border-gray-200 rounded-2xl p-2 w-full sm:w-1/3 justify-between">
+                                <button type="button" onClick={() => setSelectedQuantity(Math.max(1, selectedQuantity - 1))} className="w-10 h-10 flex items-center justify-center text-gray-500 bg-white rounded-xl shadow-sm hover:text-brand-600 transition-colors">-</button>
                                 <span className="font-bold text-lg text-gray-800">{selectedQuantity}</span>
-                                <button onClick={() => setSelectedQuantity(selectedQuantity + 1)} className="w-10 h-10 flex items-center justify-center text-gray-500 bg-white rounded-xl shadow-sm hover:text-brand-600 transition-colors">+</button>
+                                <button type="button" onClick={() => setSelectedQuantity(selectedQuantity + 1)} className="w-10 h-10 flex items-center justify-center text-gray-500 bg-white rounded-xl shadow-sm hover:text-brand-600 transition-colors">+</button>
                             </div>
-                            <button 
-                                onClick={() => {
-                                    addToCart({ ...product, quantity: selectedQuantity });
-                                    navigate('/dashboard/checkout');
-                                }}
-                                className="bg-brand-600 text-white w-2/3 py-5 rounded-2xl font-black text-xl hover:bg-brand-700 transition-all shadow-xl shadow-brand-200 flex items-center justify-center gap-3"
-                            >
-                                <ShoppingCart size={24} /> Attach {selectedQuantity} Units
-                            </button>
+                            <div className="flex flex-wrap gap-3 flex-1">
+                                <button 
+                                    type="button"
+                                    disabled={isAdmin}
+                                    onClick={() => {
+                                        if (isAdmin) return;
+                                        addToCart({ ...product, quantity: selectedQuantity });
+                                    }}
+                                    className="flex-1 min-w-[140px] bg-gray-900 text-white py-4 rounded-2xl font-bold uppercase tracking-wide hover:bg-black disabled:opacity-50 flex items-center justify-center gap-2"
+                                >
+                                    <ShoppingCart size={22} /> Add to cart
+                                </button>
+                                <button 
+                                    type="button"
+                                    disabled={isAdmin}
+                                    onClick={buyNow}
+                                    className="flex-1 min-w-[140px] bg-brand-600 text-white py-4 rounded-2xl font-black text-lg hover:bg-brand-700 transition-all shadow-xl shadow-brand-200 disabled:opacity-50 flex items-center justify-center gap-2"
+                                >
+                                    <Zap size={22} /> Buy now
+                                </button>
+                            </div>
                         </div>
                     ) : (
-                        <button 
-                            onClick={() => navigate('/dashboard/checkout')}
-                            className="bg-green-600 text-white w-full py-5 rounded-2xl font-black text-xl hover:bg-green-700 transition-all shadow-xl shadow-green-200 flex items-center justify-center gap-3"
-                        >
-                            <CheckCircle2 size={24} /> Proceed to Finalize Node
-                        </button>
+                        <div className="flex flex-col sm:flex-row gap-4">
+                            <button 
+                                type="button"
+                                onClick={() => navigate('/dashboard/cart')}
+                                className="bg-gray-50 text-gray-900 border border-gray-200 w-full py-4 rounded-2xl font-bold flex items-center justify-center gap-2"
+                            >
+                                <ShoppingCart size={22} /> View cart
+                            </button>
+                            <button 
+                                type="button"
+                                onClick={() => navigate('/dashboard/checkout')}
+                                className="bg-green-600 text-white w-full py-5 rounded-2xl font-black text-xl hover:bg-green-700 transition-all shadow-xl shadow-green-200 flex items-center justify-center gap-3"
+                            >
+                                <CheckCircle2 size={24} /> Go to checkout
+                            </button>
+                        </div>
                     )}
                 </div>
             </div>

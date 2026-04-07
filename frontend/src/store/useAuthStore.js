@@ -7,17 +7,21 @@ const useAuthStore = create(
         (set) => ({
             userInfo: null,
             login: async (email, password) => {
-                const { data } = await axios.post('/api/auth/login', { email, password });
+                const { data } = await axios.post('/api/auth/login', { email, password }, { withCredentials: true });
                 set({ userInfo: data });
                 return data;
             },
             register: async (userData) => {
-                const { data } = await axios.post('/api/auth/register', userData);
+                const config = { withCredentials: true };
+                const { data } =
+                    userData instanceof FormData
+                        ? await axios.post('/api/auth/register', userData, config)
+                        : await axios.post('/api/auth/register', userData, config);
                 set({ userInfo: data });
                 return data;
             },
             logout: async () => {
-                await axios.post('/api/auth/logout');
+                await axios.post('/api/auth/logout', {}, { withCredentials: true });
                 set({ userInfo: null });
             },
         }),

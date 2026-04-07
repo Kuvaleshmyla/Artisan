@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { Package, Clock, Truck, CheckCircle2, ChevronDown, ChevronUp, MapPin, RefreshCw } from 'lucide-react';
 import useAuthStore from '../../store/useAuthStore';
+import OrderTrackingBar from '../../components/orders/OrderTrackingBar';
 
 const MyOrders = () => {
     const [orders, setOrders] = useState([]);
@@ -64,6 +66,7 @@ const MyOrders = () => {
     const getStatusStyle = (status) => {
         switch(status?.toLowerCase()) {
             case 'pending': return 'bg-orange-50 text-orange-600 border-orange-200';
+            case 'accepted': return 'bg-teal-50 text-teal-800 border-teal-200';
             case 'processing': return 'bg-blue-50 text-blue-600 border-blue-200';
             case 'shipped': return 'bg-purple-50 text-purple-600 border-purple-200';
             case 'delivered': return 'bg-green-50 text-green-700 border-green-200';
@@ -75,17 +78,12 @@ const MyOrders = () => {
     const getStatusIcon = (status) => {
         switch(status?.toLowerCase()) {
             case 'pending': return <Clock size={16} />;
+            case 'accepted': return <CheckCircle2 size={16} />;
             case 'processing': return <Package size={16} />;
             case 'shipped': return <Truck size={16} />;
             case 'delivered': return <CheckCircle2 size={16} />;
             default: return <Clock size={16} />;
         }
-    };
-
-    const getOrderProgress = (status) => {
-        const statuses = ['pending', 'processing', 'shipped', 'delivered'];
-        const currentIndex = statuses.indexOf(status?.toLowerCase());
-        return ((currentIndex + 1) / statuses.length) * 100;
     };
 
     return (
@@ -168,24 +166,22 @@ const MyOrders = () => {
                                                     <td colSpan="5" className="p-6">
                                                         <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm animate-in fade-in slide-in-from-top-2">
                                                             {/* Status Progress */}
-                                                            {order.status !== 'cancelled' && (
-                                                                <div className="mb-8 pb-8 border-b border-gray-100">
-                                                                    <h4 className="font-bold text-gray-800 mb-4">Order Progress</h4>
-                                                                    <div className="flex justify-between items-center mb-2 text-xs">
-                                                                        <span className="font-semibold text-gray-600">Pending</span>
-                                                                        <span className="font-semibold text-gray-600">Processing</span>
-                                                                        <span className="font-semibold text-gray-600">Shipped</span>
-                                                                        <span className="font-semibold text-gray-600">Delivered</span>
-                                                                    </div>
-                                                                    <div className="w-full bg-gray-200 rounded-full h-2">
-                                                                        <div 
-                                                                            className="bg-green-500 h-2 rounded-full transition-all duration-500" 
-                                                                            style={{width: `${getOrderProgress(order.status)}`}}
-                                                                        ></div>
-                                                                    </div>
-                                                                </div>
-                                                            )}
+                                                            <div className="mb-8 pb-8 border-b border-gray-100 dark:border-gray-800">
+                                                                <OrderTrackingBar status={order.status} />
+                                                            </div>
                                                             
+                                                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+                                                                <p className="text-sm text-gray-600">
+                                                                    Payment: <span className="font-bold uppercase">{order.paymentStatus || 'pending'}</span>
+                                                                </p>
+                                                                <Link
+                                                                    to={`/dashboard/orders/${order._id}`}
+                                                                    className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-brand-600 text-white text-sm font-bold hover:bg-brand-700"
+                                                                >
+                                                                    View full order
+                                                                </Link>
+                                                            </div>
+
                                                             <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 pb-6 border-b border-gray-100 gap-6">
                                                                 <div>
                                                                     <p className="text-sm font-semibold text-gray-500 uppercase tracking-widest mb-2">Unique Navigation Route Core</p>
@@ -220,7 +216,9 @@ const MyOrders = () => {
                                                                                 </div>
                                                                                 <div>
                                                                                     <p className="font-bold text-gray-800 text-lg leading-tight mb-1">{item.name}</p>
-                                                                                    <p className="text-xs font-semibold text-brand-600 uppercase tracking-wider bg-brand-50 px-2 py-0.5 rounded w-fit">From Vendor DB System</p>
+                                                                                    <p className="text-xs font-semibold text-brand-600 uppercase tracking-wider bg-brand-50 px-2 py-0.5 rounded w-fit">
+                                                                                        Vendor: {item.artisanId?.businessName || item.artisanId?.name || 'Artisan'}
+                                                                                    </p>
                                                                                 </div>
                                                                             </div>
                                                                             <div className="flex items-center gap-10">

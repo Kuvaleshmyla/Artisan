@@ -8,6 +8,7 @@ import productRoutes from './routes/productRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import artisanRoutes from './routes/artisanRoutes.js';
+import contentRoutes from './routes/contentRoutes.js';
 import path from 'path';
 
 dotenv.config();
@@ -34,6 +35,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/artisans', artisanRoutes);
+app.use('/api/content', contentRoutes);
 
 const __dirname = path.resolve();
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')));

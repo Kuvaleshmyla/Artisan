@@ -11,22 +11,37 @@ const storage = multer.diskStorage({
 });
 
 function checkFileType(file, cb) {
-    const filetypes = /jpg|jpeg|png/;
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = filetypes.test(file.mimetype);
+    const ext = path.extname(file.originalname).toLowerCase().replace(/^\./, '');
+    const allowedExt = /^(jpe?g|png|webp)$/.test(ext);
+    const allowedMime = /^image\/(jpeg|png|webp)$/i.test(file.mimetype);
 
-    if (extname && mimetype) {
+    if (allowedExt && allowedMime) {
         return cb(null, true);
-    } else {
-        cb('Images only!');
     }
+    cb('Images only (JPEG, PNG, or WebP).');
+}
+
+function checkWorkVideo(file, cb) {
+    const ext = path.extname(file.originalname).toLowerCase().replace(/^\./, '');
+    if (!['mp4', 'webm', 'mov'].includes(ext)) {
+        return cb(new Error('Work video must be MP4, WebM, or MOV.'));
+    }
+    const mime = file.mimetype || '';
+    if (mime && !/^video\//i.test(mime) && !/^application\/octet-stream$/i.test(mime)) {
+        return cb(new Error('Invalid video file type.'));
+    }
+    cb(null, true);
 }
 
 const upload = multer({
     storage,
-    fileFilter: function(req, file, cb) {
+    limits: { fileSize: 80 * 1024 * 1024 },
+    fileFilter(req, file, cb) {
+        if (file.fieldname === 'workVideo') {
+            return checkWorkVideo(file, cb);
+        }
         checkFileType(file, cb);
-    }
+    },
 });
 
 export default upload;
