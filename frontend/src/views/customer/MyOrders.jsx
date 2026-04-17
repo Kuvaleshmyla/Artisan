@@ -5,6 +5,8 @@ import { Package, Clock, Truck, CheckCircle2, ChevronDown, ChevronUp, MapPin, Re
 import useAuthStore from '../../store/useAuthStore';
 import OrderTrackingBar from '../../components/orders/OrderTrackingBar';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 const MyOrders = () => {
     const [orders, setOrders] = useState([]);
     const [expandedIds, setExpandedIds] = useState([]);
@@ -17,8 +19,8 @@ const MyOrders = () => {
     const fetchOrders = async () => {
         try {
             setLoading(true);
-            const endpoint = userInfo?.role === 'admin' ? '/api/orders/all' :
-                             userInfo?.role === 'artisan' ? '/api/orders/artisanorders' : '/api/orders/myorders';
+            const endpoint = userInfo?.role === 'admin' ? `${API_BASE_URL}/api/orders/all` :
+                             userInfo?.role === 'artisan' ? `${API_BASE_URL}/api/orders/artisanorders` : `${API_BASE_URL}/api/orders/myorders`;
             const { data } = await axios.get(endpoint, { withCredentials: true });
             setOrders(data);
         } catch (error) {
@@ -40,7 +42,7 @@ const MyOrders = () => {
     const handleFeedbackSubmit = async (orderId) => {
         if (!feedbackInput[orderId]) return;
         try {
-            await axios.post(`/api/orders/${orderId}/feedback`, { feedback: feedbackInput[orderId] }, { withCredentials: true });
+            await axios.post(`${API_BASE_URL}/api/orders/${orderId}/feedback`, { feedback: feedbackInput[orderId] }, { withCredentials: true });
             setFeedbackInput(prev => ({...prev, [orderId]: ''}));
             fetchOrders();
         } catch (e) {
@@ -51,7 +53,7 @@ const MyOrders = () => {
     const handleIssueSubmit = async (orderId) => {
         if (!issueInput[orderId]) return;
         try {
-            await axios.post(`/api/orders/${orderId}/issue`, { issue: issueInput[orderId] }, { withCredentials: true });
+            await axios.post(`${API_BASE_URL}/api/orders/${orderId}/issue`, { issue: issueInput[orderId] }, { withCredentials: true });
             setIssueInput(prev => ({...prev, [orderId]: ''}));
             fetchOrders();
         } catch (e) {
