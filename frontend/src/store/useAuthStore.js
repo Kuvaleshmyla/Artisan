@@ -2,12 +2,14 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 const useAuthStore = create(
     persist(
         (set) => ({
             userInfo: null,
             login: async (email, password) => {
-                const { data } = await axios.post('/api/auth/login', { email, password }, { withCredentials: true });
+                const { data } = await axios.post(`${API_BASE_URL}/api/auth/login`, { email, password }, { withCredentials: true });
                 set({ userInfo: data });
                 return data;
             },
@@ -15,13 +17,13 @@ const useAuthStore = create(
                 const config = { withCredentials: true };
                 const { data } =
                     userData instanceof FormData
-                        ? await axios.post('/api/auth/register', userData, config)
-                        : await axios.post('/api/auth/register', userData, config);
+                        ? await axios.post(`${API_BASE_URL}/api/auth/register`, userData, config)
+                        : await axios.post(`${API_BASE_URL}/api/auth/register`, userData, config);
                 set({ userInfo: data });
                 return data;
             },
             logout: async () => {
-                await axios.post('/api/auth/logout', {}, { withCredentials: true });
+                await axios.post(`${API_BASE_URL}/api/auth/logout`, {}, { withCredentials: true });
                 set({ userInfo: null });
             },
         }),
