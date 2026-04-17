@@ -18,7 +18,7 @@ const PORT = process.env.PORT || 5000;
 
 // Middlewares
 app.use(cors({
-    origin: 'http://localhost:5173', // Vite default port
+    origin: 'https://artisanfrontend.netlify.app', // Frontend URL
     credentials: true // Crucial for cookie-based session login checks
 }));
 app.use(express.json());
@@ -46,6 +46,6 @@ app.get('/', (req, res) => {
 });
 
 // Start Server
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Server running on https://artisanbackend.onrendor.com:${PORT}`);
 });
