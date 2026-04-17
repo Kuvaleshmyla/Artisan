@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Trash2, BarChart3, ShieldAlert } from 'lucide-react';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 const AdminProducts = () => {
     const [products, setProducts] = useState([]);
     const [expandedProductId, setExpandedProductId] = useState(null);
@@ -10,7 +12,7 @@ const AdminProducts = () => {
     const fetchProducts = async () => {
         try {
             setLoading(true);
-            const { data } = await axios.get('/api/products');
+            const { data } = await axios.get(`${API_BASE_URL}/api/products`);
             setProducts(data);
         } catch (e) {
             console.error(e);
@@ -26,7 +28,7 @@ const AdminProducts = () => {
     const handleDeleteProduct = async (productId) => {
         if (!window.confirm('Remove this product from the platform?')) return;
         try {
-            await axios.delete(`/api/products/${productId}`, { withCredentials: true });
+            await axios.delete(`${API_BASE_URL}/api/products/${productId}`, { withCredentials: true });
             fetchProducts();
         } catch {
             alert('Error removing product');
