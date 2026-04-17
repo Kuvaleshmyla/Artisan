@@ -4,6 +4,8 @@ import axios from 'axios';
 import { Package, Zap, TrendingUp } from 'lucide-react';
 import useAuthStore from '../../store/useAuthStore';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 const ArtisanDashboard = () => {
     const { userInfo } = useAuthStore();
     const [stats, setStats] = useState({ earnings: 0, pendingOrders: 0, totalProducts: 0, completedOrders: 0 });
@@ -15,8 +17,8 @@ const ArtisanDashboard = () => {
             try {
                 setLoading(true);
                 const [{ data: orders }, { data: products }] = await Promise.all([
-                    axios.get('/api/orders/artisanorders', { withCredentials: true }),
-                    axios.get('/api/products/artisan/mine', { withCredentials: true }),
+                    axios.get(`${API_BASE_URL}/api/orders/artisanorders`, { withCredentials: true }),
+                    axios.get(`${API_BASE_URL}/api/products/artisan/mine`, { withCredentials: true }),
                 ]);
 
                 const mine = Array.isArray(products) ? products : [];
