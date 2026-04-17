@@ -6,6 +6,8 @@ import useCartStore from '../../store/useCartStore';
 import useWishlistStore from '../../store/useWishlistStore';
 import useAuthStore from '../../store/useAuthStore';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 const waitAuthHydration = () =>
     new Promise((resolve) => {
         if (useAuthStore.persist.hasHydrated()) resolve();
@@ -34,11 +36,11 @@ const PublicArtisan = () => {
                 const isAdmin = useAuthStore.getState().userInfo?.role === 'admin';
                 const cred = { withCredentials: true };
                 const profileUrl = isAdmin
-                    ? `/api/artisans/admin/preview/${artisanId}`
-                    : `/api/artisans/public/${artisanId}`;
+                    ? `${API_BASE_URL}/api/artisans/admin/preview/${artisanId}`
+                    : `${API_BASE_URL}/api/artisans/public/${artisanId}`;
                 const [pRes, prodRes] = await Promise.all([
                     axios.get(profileUrl, cred),
-                    axios.get('/api/products', { ...cred, params: { artisan: artisanId } }),
+                    axios.get(`${API_BASE_URL}/api/products`, { ...cred, params: { artisan: artisanId } }),
                 ]);
                 if (cancelled) return;
                 setProfile(pRes.data);
