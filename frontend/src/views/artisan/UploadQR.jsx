@@ -2,13 +2,15 @@ import { useEffect, useState } from 'react';
 import { Upload, CheckCircle2, Trash2 } from 'lucide-react';
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 const UploadQR = () => {
     const [profile, setProfile] = useState(null);
     const [uploading, setUploading] = useState(false);
 
     const load = () => {
         axios
-            .get('/api/artisans/profile', { withCredentials: true })
+            .get(`${API_BASE_URL}/api/artisans/profile`, { withCredentials: true })
             .then(({ data }) => setProfile(data))
             .catch(console.error);
     };
@@ -24,8 +26,8 @@ const UploadQR = () => {
         try {
             const formData = new FormData();
             formData.append('image', file);
-            const { data: imageUrl } = await axios.post('/api/upload', formData, { withCredentials: true });
-            await axios.put('/api/artisans/profile', { qrCodeImage: imageUrl }, { withCredentials: true });
+            const { data: imageUrl } = await axios.post(`${API_BASE_URL}/api/upload`, formData, { withCredentials: true });
+            await axios.put(`${API_BASE_URL}/api/artisans/profile`, { qrCodeImage: imageUrl }, { withCredentials: true });
             load();
         } catch (err) {
             console.error(err);
@@ -37,7 +39,7 @@ const UploadQR = () => {
 
     const selectQr = async (url) => {
         try {
-            await axios.put('/api/artisans/profile', { qrCodeImage: url }, { withCredentials: true });
+            await axios.put(`${API_BASE_URL}/api/artisans/profile`, { qrCodeImage: url }, { withCredentials: true });
             load();
         } catch (e) {
             alert('Could not set active QR.');
@@ -49,7 +51,7 @@ const UploadQR = () => {
         e.stopPropagation();
         if (!window.confirm('Remove this QR image from your account?')) return;
         try {
-            await axios.put('/api/artisans/profile', { removeQrImage: url }, { withCredentials: true });
+            await axios.put(`${API_BASE_URL}/api/artisans/profile`, { removeQrImage: url }, { withCredentials: true });
             load();
         } catch (err) {
             alert('Could not delete QR image.');
