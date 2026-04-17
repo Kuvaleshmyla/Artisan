@@ -18,7 +18,7 @@ const PORT = process.env.PORT || 5000;
 
 // Middlewares
 app.use(cors({
-    origin: 'https://artisanfrontend.netlify.app', // Frontend URL
+    origin: 'https://artisanfrontend1.netlify.app', // Frontend URL
     credentials: true // Crucial for cookie-based session login checks
 }));
 app.use(express.json());
