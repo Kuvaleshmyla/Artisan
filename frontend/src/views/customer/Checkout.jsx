@@ -5,6 +5,8 @@ import useCartStore from '../../store/useCartStore';
 import { MapPin, QrCode, CheckCircle2, Plus, Minus, Trash2, Smartphone, Building, User, Phone, Check, Loader2 } from 'lucide-react';
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 const Checkout = () => {
     const navigate = useNavigate();
     const { cartItems, updateQuantity, removeFromCart, clearCart } = useCartStore();
@@ -35,7 +37,7 @@ const Checkout = () => {
                 const artisanIdStr = typeof cartItems[0].artisanId === 'object' ? cartItems[0].artisanId._id : cartItems[0].artisanId;
                 if (artisanIdStr) {
                     try {
-                        const { data } = await axios.get(`/api/artisans/${artisanIdStr}/qrcode`);
+                        const { data } = await axios.get(`${API_BASE_URL}/api/artisans/${artisanIdStr}/qrcode`);
                         if (data?.qrCodeImage) {
                             setArtisanQRCode(data.qrCodeImage);
                         }
@@ -78,7 +80,7 @@ const Checkout = () => {
         try {
             const formData = new FormData();
             formData.append('image', file);
-            const { data: imageUrl } = await axios.post('/api/upload', formData, { withCredentials: true });
+            const { data: imageUrl } = await axios.post(`${API_BASE_URL}/api/upload`, formData, { withCredentials: true });
             setQrUploadedUrl(imageUrl);
         } catch (err) {
             alert('Failed to push receipt image to global storage. Try again.');
@@ -96,7 +98,7 @@ const Checkout = () => {
 
         try {
             const activeAddr = getActiveAddress();
-            const { data } = await axios.post('/api/orders', {
+            const { data } = await axios.post(`${API_BASE_URL}/api/orders`, {
                 orderItems: cartItems.map(item => ({
                     productId: item._id,
                     name: item.name,
