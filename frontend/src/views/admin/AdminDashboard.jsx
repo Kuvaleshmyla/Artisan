@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Users, Briefcase, ShoppingBag, AlertOctagon, Package } from 'lucide-react';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 const AdminDashboard = () => {
     const navigate = useNavigate();
     const [stats, setStats] = useState({ usersCount: 0, artisansCount: 0, flagsCount: 0 });
@@ -14,9 +16,9 @@ const AdminDashboard = () => {
         try {
             setLoading(true);
             const [statsData, productsData, ordersData] = await Promise.all([
-                axios.get('/api/artisans/admin/stats', { withCredentials: true }),
-                axios.get('/api/products'),
-                axios.get('/api/orders/all', { withCredentials: true })
+                axios.get(`${API_BASE_URL}/api/artisans/admin/stats`, { withCredentials: true }),
+                axios.get(`${API_BASE_URL}/api/products`),
+                axios.get(`${API_BASE_URL}/api/orders/all`, { withCredentials: true })
             ]);
 
             setStats(statsData.data);
