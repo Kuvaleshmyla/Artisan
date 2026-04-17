@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { Package, User, Mail, Eye } from 'lucide-react';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 const AdminOrders = () => {
     const [orders, setOrders] = useState([]);
     const [expandedOrderId, setExpandedOrderId] = useState(null);
@@ -15,7 +17,7 @@ const AdminOrders = () => {
     const fetchAllOrders = async () => {
         try {
             setLoading(true);
-            const { data } = await axios.get('/api/orders/all', { withCredentials: true });
+            const { data } = await axios.get(`${API_BASE_URL}/api/orders/all`, { withCredentials: true });
             setOrders(data);
         } catch (error) {
             console.error('Error fetching orders:', error);
@@ -37,7 +39,7 @@ const AdminOrders = () => {
     const handleStatusChange = async (orderId, newStatus) => {
         try {
             const { data } = await axios.put(
-                `/api/orders/${orderId}/status`,
+                `${API_BASE_URL}/api/orders/${orderId}/status`,
                 { status: newStatus },
                 { withCredentials: true }
             );
