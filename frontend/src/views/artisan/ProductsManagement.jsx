@@ -3,6 +3,8 @@ import { Plus, X, Edit, Trash2 } from 'lucide-react';
 import axios from 'axios';
 import useAuthStore from '../../store/useAuthStore';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 const emptyForm = { name: '', price: '', description: '', category: '', stock: '1', imageUrls: [] };
 
 const ProductsManagement = () => {
@@ -16,7 +18,7 @@ const ProductsManagement = () => {
 
     const fetchProducts = async () => {
         try {
-            const { data } = await axios.get('/api/products/artisan/mine', { withCredentials: true });
+            const { data } = await axios.get(`${API_BASE_URL}/api/products/artisan/mine`, { withCredentials: true });
             setProducts(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error('Error fetching products', error);
@@ -60,7 +62,7 @@ const ProductsManagement = () => {
             for (const file of pendingFiles) {
                 const fd = new FormData();
                 fd.append('image', file);
-                const { data: url } = await axios.post('/api/upload', fd, { withCredentials: true });
+                const { data: url } = await axios.post(`${API_BASE_URL}/api/upload`, fd, { withCredentials: true });
                 uploaded.push(typeof url === 'string' ? url : String(url));
             }
             const images = [...form.imageUrls, ...uploaded].filter(Boolean);
@@ -80,9 +82,9 @@ const ProductsManagement = () => {
             };
 
             if (editingId) {
-                await axios.put(`/api/products/${editingId}`, payload, { withCredentials: true });
+                await axios.put(`${API_BASE_URL}/api/products/${editingId}`, payload, { withCredentials: true });
             } else {
-                await axios.post('/api/products', payload, { withCredentials: true });
+                await axios.post(`${API_BASE_URL}/api/products`, payload, { withCredentials: true });
             }
 
             setShowForm(false);
@@ -101,7 +103,7 @@ const ProductsManagement = () => {
     const handleDelete = async (id) => {
         if (!window.confirm('Delete this product permanently?')) return;
         try {
-            await axios.delete(`/api/products/${id}`, { withCredentials: true });
+            await axios.delete(`${API_BASE_URL}/api/products/${id}`, { withCredentials: true });
             fetchProducts();
         } catch (error) {
             console.error(error);
