@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Loader2, ImageIcon } from 'lucide-react';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 const CraftStoriesPage = () => {
     const [stories, setStories] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -9,7 +11,7 @@ const CraftStoriesPage = () => {
     useEffect(() => {
         let cancelled = false;
         axios
-            .get('/api/content/craft-stories')
+            .get(`${API_BASE_URL}/api/content/craft-stories`)
             .then(({ data }) => {
                 if (!cancelled) {
                     const list = Array.isArray(data) ? data : [];
