@@ -3,13 +3,15 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { Briefcase, Mail, CheckCircle2, XCircle, ExternalLink } from 'lucide-react';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 const AdminRequests = () => {
     const [profiles, setProfiles] = useState([]);
     const [busyId, setBusyId] = useState(null);
 
     const load = async () => {
         try {
-            const { data } = await axios.get('/api/artisans/admin/profiles?pending=true', { withCredentials: true });
+            const { data } = await axios.get(`${API_BASE_URL}/api/artisans/admin/profiles?pending=true`, { withCredentials: true });
             setProfiles(Array.isArray(data) ? data : []);
         } catch (e) {
             console.error(e);
@@ -23,7 +25,7 @@ const AdminRequests = () => {
     const approve = async (profileId) => {
         try {
             setBusyId(profileId);
-            await axios.put(`/api/artisans/admin/verify/${profileId}`, {}, { withCredentials: true });
+            await axios.put(`${API_BASE_URL}/api/artisans/admin/verify/${profileId}`, {}, { withCredentials: true });
             await load();
         } catch (e) {
             alert(e.response?.data?.message || 'Approve failed');
@@ -36,7 +38,7 @@ const AdminRequests = () => {
         if (!window.confirm(`Reject application for ${name}? Their account will be removed and they may register again.`)) return;
         try {
             setBusyId(userId);
-            await axios.delete(`/api/auth/artisans/pending/${userId}`, { withCredentials: true });
+            await axios.delete(`${API_BASE_URL}/api/auth/artisans/pending/${userId}`, { withCredentials: true });
             setProfiles((prev) => prev.filter((p) => String(p.userId?._id) !== String(userId)));
             await load();
         } catch (e) {
