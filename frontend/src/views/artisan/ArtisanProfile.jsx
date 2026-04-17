@@ -3,6 +3,8 @@ import axios from 'axios';
 import { User, Briefcase, FileText, Mail, Trash2, Video } from 'lucide-react';
 import useAuthStore from '../../store/useAuthStore';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 const ArtisanProfile = () => {
     const { userInfo } = useAuthStore();
     const [profile, setProfile] = useState({
@@ -23,7 +25,7 @@ const ArtisanProfile = () => {
     const workVideoInputRef = useRef(null);
 
     useEffect(() => {
-        axios.get('/api/artisans/profile', { withCredentials: true })
+        axios.get(`${API_BASE_URL}/api/artisans/profile`, { withCredentials: true })
              .then(({data}) => {
                  setProfile({
                      businessName: data.businessName || '',
@@ -48,7 +50,7 @@ const ArtisanProfile = () => {
         e.preventDefault();
         setIsSaving(true);
         try {
-            await axios.put('/api/artisans/profile', {
+            await axios.put(`${API_BASE_URL}/api/artisans/profile`, {
                 businessName: profile.businessName,
                 description: profile.description,
                 workExperience: profile.workExperience,
@@ -80,12 +82,12 @@ const ArtisanProfile = () => {
             for (const file of files) {
                 const fd = new FormData();
                 fd.append('image', file);
-                const { data } = await axios.post('/api/upload', fd, { withCredentials: true });
+                const { data } = await axios.post(`${API_BASE_URL}/api/upload`, fd, { withCredentials: true });
                 urls.push(typeof data === 'string' ? data : String(data));
             }
             const next = [...(profile.galleryImages || []), ...urls];
             setProfile({ ...profile, galleryImages: next });
-            await axios.put('/api/artisans/profile', { galleryImages: next }, { withCredentials: true });
+            await axios.put(`${API_BASE_URL}/api/artisans/profile`, { galleryImages: next }, { withCredentials: true });
         } catch (err) {
             console.error(err);
             alert('Could not upload images.');
@@ -96,7 +98,7 @@ const ArtisanProfile = () => {
 
     const removeGalleryUrl = async (url) => {
         try {
-            await axios.put('/api/artisans/profile', { removeGalleryImage: url }, { withCredentials: true });
+            await axios.put(`${API_BASE_URL}/api/artisans/profile`, { removeGalleryImage: url }, { withCredentials: true });
             setProfile({
                 ...profile,
                 galleryImages: (profile.galleryImages || []).filter((u) => u !== url),
@@ -115,7 +117,7 @@ const ArtisanProfile = () => {
         try {
             const fd = new FormData();
             fd.append('workVideo', file);
-            const { data } = await axios.post('/api/upload/work-video', fd, {
+            const { data } = await axios.post(`${API_BASE_URL}/api/upload/work-video`, fd, {
                 withCredentials: true,
                 responseType: 'text',
             });
@@ -124,7 +126,7 @@ const ArtisanProfile = () => {
                 throw new Error('Invalid upload response');
             }
             setProfile({ ...profile, workVideo: url });
-            await axios.put('/api/artisans/profile', { workVideo: url }, { withCredentials: true });
+            await axios.put(`${API_BASE_URL}/api/artisans/profile`, { workVideo: url }, { withCredentials: true });
         } catch (err) {
             console.error(err);
             alert(err.response?.data?.message || err.message || 'Could not upload video.');
@@ -136,7 +138,7 @@ const ArtisanProfile = () => {
     const removeWorkVideo = async () => {
         if (!window.confirm('Remove your workshop video? You can upload a new one anytime.')) return;
         try {
-            await axios.put('/api/artisans/profile', { removeWorkVideo: true }, { withCredentials: true });
+            await axios.put(`${API_BASE_URL}/api/artisans/profile`, { removeWorkVideo: true }, { withCredentials: true });
             setProfile({ ...profile, workVideo: '' });
             if (workVideoInputRef.current) workVideoInputRef.current.value = '';
         } catch (err) {
