@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { AlertTriangle } from 'lucide-react';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 const AdminIssues = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -9,7 +11,7 @@ const AdminIssues = () => {
     useEffect(() => {
         (async () => {
             try {
-                const { data } = await axios.get('/api/orders/all', { withCredentials: true });
+                const { data } = await axios.get(`${API_BASE_URL}/api/orders/all`, { withCredentials: true });
                 setOrders(data.filter((o) => o.issue && String(o.issue).trim()));
             } catch (e) {
                 console.error(e);
