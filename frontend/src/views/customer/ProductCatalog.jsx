@@ -5,6 +5,8 @@ import useCartStore from '../../store/useCartStore';
 import useWishlistStore from '../../store/useWishlistStore';
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 const ProductCatalog = () => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -20,7 +22,7 @@ const ProductCatalog = () => {
     useEffect(() => {
         let cancelled = false;
         axios
-            .get('/api/products/meta/categories')
+            .get(`${API_BASE_URL}/api/products/meta/categories`)
             .then(({ data }) => {
                 if (!cancelled) setCategories(Array.isArray(data) ? data : []);
             })
@@ -40,7 +42,7 @@ const ProductCatalog = () => {
         if (categoryFromUrl) query.category = categoryFromUrl;
         const params = Object.keys(query).length ? { params: query } : {};
         axios
-            .get('/api/products', params)
+            .get(`${API_BASE_URL}/api/products`, params)
             .then(({ data }) => {
                 if (!cancelled) setProducts(data);
             })
