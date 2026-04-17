@@ -6,6 +6,8 @@ import useCartStore from '../../store/useCartStore';
 import useWishlistStore from '../../store/useWishlistStore';
 import useAuthStore from '../../store/useAuthStore';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 const ProductDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -24,7 +26,7 @@ const ProductDetails = () => {
 
     const fetchProduct = async () => {
         try {
-            const { data } = await axios.get(`/api/products/${id}`);
+            const { data } = await axios.get(`${API_BASE_URL}/api/products/${id}`);
             setProduct(data);
         } catch (err) {
             setError('Failed to fetch product details.');
@@ -50,7 +52,7 @@ const ProductDetails = () => {
         }
         setSubmittingReview(true);
         try {
-            await axios.post(`/api/products/${id}/reviews`, { rating, comment }, { withCredentials: true });
+            await axios.post(`${API_BASE_URL}/api/products/${id}/reviews`, { rating, comment }, { withCredentials: true });
             alert('Feedback submitted successfully!');
             setRating(0);
             setComment('');
