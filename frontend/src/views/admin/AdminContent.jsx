@@ -2,6 +2,8 @@ import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { Plus, Trash2, Save, ImagePlus, X } from 'lucide-react';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 const emptyDraft = () => ({ title: '', body: '', sortOrder: 0, images: [] });
 
 function parseUploadPath(data) {
@@ -16,7 +18,7 @@ async function uploadFilesToUrls(files) {
     for (const file of Array.from(files || [])) {
         const fd = new FormData();
         fd.append('image', file);
-        const { data } = await axios.post('/api/upload', fd, {
+        const { data } = await axios.post(`${API_BASE_URL}/api/upload`, fd, {
             withCredentials: true,
             responseType: 'text',
         });
@@ -41,7 +43,7 @@ const AdminContent = () => {
 
     const load = async () => {
         try {
-            const { data } = await axios.get('/api/content/craft-stories');
+            const { data } = await axios.get(`${API_BASE_URL}/api/content/craft-stories`);
             const list = Array.isArray(data) ? data : [];
             setStories(list.map((x) => ({ ...x, images: Array.isArray(x.images) ? x.images : [] })));
         } catch (e) {
@@ -60,7 +62,7 @@ const AdminContent = () => {
         if (!draft.title.trim()) return;
         try {
             setCreating(true);
-            await axios.post('/api/content/craft-stories', draft, { withCredentials: true });
+            await axios.post(`${API_BASE_URL}/api/content/craft-stories`, draft, { withCredentials: true });
             setDraft(emptyDraft());
             await load();
         } catch (err) {
@@ -73,7 +75,7 @@ const AdminContent = () => {
     const saveStory = async (s) => {
         try {
             setSavingId(s._id);
-            await axios.put(`/api/content/craft-stories/${s._id}`, s, { withCredentials: true });
+            await axios.put(`${API_BASE_URL}/api/content/craft-stories/${s._id}`, s, { withCredentials: true });
             await load();
         } catch (err) {
             alert(err.response?.data?.message || 'Could not save');
@@ -85,7 +87,7 @@ const AdminContent = () => {
     const deleteStory = async (id) => {
         if (!window.confirm('Delete this craft story?')) return;
         try {
-            await axios.delete(`/api/content/craft-stories/${id}`, { withCredentials: true });
+            await axios.delete(`${API_BASE_URL}/api/content/craft-stories/${id}`, { withCredentials: true });
             await load();
         } catch (err) {
             alert(err.response?.data?.message || 'Could not delete');
