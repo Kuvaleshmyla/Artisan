@@ -2,13 +2,15 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { User, Mail, Trash2 } from 'lucide-react';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 const AdminUsers = () => {
     const [users, setUsers] = useState([]);
     const [removingId, setRemovingId] = useState(null);
 
     const fetchUsers = async () => {
         try {
-            const { data } = await axios.get('/api/auth/customers', { withCredentials: true });
+            const { data } = await axios.get(`${API_BASE_URL}/api/auth/customers`, { withCredentials: true });
             setUsers(data);
         } catch (err) {
             console.error(err);
@@ -23,7 +25,7 @@ const AdminUsers = () => {
         if (!window.confirm(`Revoke access for ${name}? They will not be able to log in again.`)) return;
         try {
             setRemovingId(id);
-            await axios.delete(`/api/auth/users/${id}`, { withCredentials: true });
+            await axios.delete(`${API_BASE_URL}/api/auth/users/${id}`, { withCredentials: true });
             await fetchUsers();
         } catch (err) {
             alert(err.response?.data?.message || 'Could not revoke access');
